@@ -1,0 +1,296 @@
+.app-shell {
+  width: min(860px, 100%);
+  margin: 0 auto;
+  padding: 28px 18px 52px;
+}
+
+.app-header {
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: 0.02em;
+}
+
+.app-header p {
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(16, 36, 52, 0.1);
+  border-radius: 18px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+.todo-card {
+  display: grid;
+  gap: 16px;
+}
+
+.alert {
+  margin: 0 0 14px;
+  background: #ffd9ca;
+  border: 1px solid #ffb199;
+  color: #872f11;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.auth-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.auth-mode button,
+.auth-form button,
+.todo-create button,
+.ghost,
+.danger {
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-mode button {
+  padding: 10px;
+  background: #d9ecef;
+  color: #11434a;
+}
+
+.auth-mode button.active {
+  background: linear-gradient(120deg, #0d9488, #136f63);
+  color: #ffffff;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.auth-form input,
+.todo-create input,
+.search-box input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(16, 36, 52, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #ffffff;
+}
+
+.auth-form button,
+.todo-create button {
+  margin-top: 6px;
+  padding: 11px;
+  background: linear-gradient(120deg, #ff8f3f, #f76707);
+  color: #ffffff;
+}
+
+.auth-form button:disabled {
+  opacity: 0.7;
+}
+
+.todo-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.todo-top h2 {
+  margin: 0;
+  color: var(--ink);
+}
+
+.todo-top p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.todo-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 250, 0.92));
+  border: 1px solid rgba(16, 36, 52, 0.08);
+}
+
+.stat-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+.todo-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.search-box {
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-pill {
+  padding: 9px 14px;
+  background: #e8f3f5;
+  color: #1d5057;
+}
+
+.filter-pill.active {
+  background: linear-gradient(120deg, #0d9488, #136f63);
+  color: #ffffff;
+}
+
+.todo-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.todo-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.secondary {
+  background: #e1f0f2;
+  color: #1d5057;
+}
+
+.ghost {
+  padding: 10px 14px;
+  background: #e1f0f2;
+  color: #1d5057;
+}
+
+.todo-create {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.todo-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border-radius: 12px;
+  background: #f3fafb;
+  border: 1px solid rgba(17, 67, 74, 0.1);
+}
+
+.todo-list label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.todo-list input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+}
+
+.todo-list li.done span {
+  text-decoration: line-through;
+  color: #5d7b82;
+}
+
+.danger {
+  padding: 8px 12px;
+  background: #ffd8d3;
+  color: #8f2e21;
+}
+
+.empty {
+  margin-top: 14px;
+  color: var(--muted);
+  text-align: center;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(79, 107, 119, 0.25);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+@media (max-width: 640px) {
+  .todo-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .todo-actions {
+    align-items: flex-start;
+  }
+
+  .todo-create {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
