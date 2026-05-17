@@ -95,7 +95,7 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>FocusFlow Todo</h1>
+        <h1>ToDo List</h1>
         <p>Plan your day, protect your time, and finish what matters.</p>
       </header>
 
