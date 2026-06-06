@@ -13,6 +13,19 @@ const filterOptions = [
   { id: 'completed', label: 'Completed' },
 ];
 
+const sortOptions = [
+  { id: 'newest', label: 'Newest' },
+  { id: 'oldest', label: 'Oldest' },
+  { id: 'priority', label: 'Priority' },
+  { id: 'dueSoon', label: 'Due soon' },
+];
+
+const priorityWeight = {
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
 function App() {
   const { user, token, loading, authError, login, register, logout, clearAuthError } =
     useAuth();
@@ -21,12 +34,14 @@ function App() {
     todoError,
     createTodo,
     toggleTodo,
+    editTodo,
     deleteTodo,
     clearCompleted,
     clearTodoError,
   } = useTodos(token);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
 
   const completedCount = useMemo(
     () => todos.filter((item) => item.completed).length,
@@ -37,7 +52,7 @@ function App() {
   const visibleTodos = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    return todos.filter((todo) => {
+    const filtered = todos.filter((todo) => {
       const matchesFilter =
         filter === 'all' ||
         (filter === 'active' && !todo.completed) ||
@@ -48,7 +63,46 @@ function App() {
 
       return matchesFilter && matchesSearch;
     });
-  }, [todos, searchQuery, filter]);
+
+    return filtered.sort((a, b) => {
+      if (sortBy === 'oldest') {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      }
+
+      if (sortBy === 'priority') {
+        return (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
+      }
+
+      if (sortBy === 'dueSoon') {
+        if (!a.dueDate && !b.dueDate) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        if (!a.dueDate) {
+          return 1;
+        }
+        if (!b.dueDate) {
+          return -1;
+        }
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      }
+
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  }, [todos, searchQuery, filter, sortBy]);
+
+  const overdueCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return todos.filter((todo) => {
+      if (!todo.dueDate || todo.completed) {
+        return false;
+      }
+      const due = new Date(todo.dueDate);
+      due.setHours(0, 0, 0, 0);
+      return due < today;
+    }).length;
+  }, [todos]);
 
   const error = authError || todoError;
 
@@ -62,9 +116,9 @@ function App() {
     return register(payload);
   };
 
-  const handleCreateTodo = async (title) => {
+  const handleCreateTodo = async (payload) => {
     clearAuthError();
-    return createTodo(title);
+    return createTodo(payload);
   };
 
   const handleToggleTodo = async (todo) => {
@@ -77,9 +131,15 @@ function App() {
     return deleteTodo(todoId);
   };
 
+  const handleEditTodo = async (todoId, payload) => {
+    clearAuthError();
+    return editTodo(todoId, payload);
+  };
+
   const handleLogout = () => {
     setSearchQuery('');
     setFilter('all');
+    setSortBy('newest');
     return logout();
   };
 
@@ -125,6 +185,10 @@ function App() {
               <span>Total</span>
               <strong>{todos.length}</strong>
             </div>
+            <div className="stat-card">
+              <span>Overdue</span>
+              <strong>{overdueCount}</strong>
+            </div>
           </div>
 
           <div className="todo-toolbar">
@@ -150,6 +214,17 @@ function App() {
                 </button>
               ))}
             </div>
+
+            <label className="sort-box">
+              Sort by
+              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                {sortOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           <TodoForm onCreate={handleCreateTodo} />
@@ -164,7 +239,12 @@ function App() {
           </div>
 
           {visibleTodos.length ? (
-            <TodoList todos={visibleTodos} onToggle={handleToggleTodo} onDelete={handleDeleteTodo} />
+            <TodoList
+              todos={visibleTodos}
+              onToggle={handleToggleTodo}
+              onDelete={handleDeleteTodo}
+              onEdit={handleEditTodo}
+            />
           ) : (
             <p className="empty">{emptyMessage}</p>
           )}

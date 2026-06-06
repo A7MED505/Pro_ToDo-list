@@ -23,9 +23,9 @@ export const useTodos = (token) => {
     loadTodos();
   }, [token]);
 
-  const createTodo = async (title) => {
+  const createTodo = async (payload) => {
     try {
-      const response = await todoService.create(title.trim());
+      const response = await todoService.create(payload);
       setTodos((prev) => [response.data.todo, ...prev]);
       setTodoError('');
       return true;
@@ -51,6 +51,20 @@ export const useTodos = (token) => {
     }
   };
 
+  const editTodo = async (todoId, payload) => {
+    try {
+      const response = await todoService.update(todoId, payload);
+      setTodos((prev) =>
+        prev.map((item) => (item._id === todoId ? response.data.todo : item)),
+      );
+      setTodoError('');
+      return true;
+    } catch (err) {
+      setTodoError(err.response?.data?.message || 'Could not update todo.');
+      return false;
+    }
+  };
+
   const deleteTodo = async (todoId) => {
     try {
       await todoService.remove(todoId);
@@ -63,8 +77,15 @@ export const useTodos = (token) => {
   };
 
   const clearCompleted = async () => {
-    setTodos((prev) => prev.filter((item) => !item.completed));
-    return true;
+    try {
+      await todoService.clearCompleted();
+      setTodos((prev) => prev.filter((item) => !item.completed));
+      setTodoError('');
+      return true;
+    } catch (err) {
+      setTodoError(err.response?.data?.message || 'Could not clear completed todos.');
+      return false;
+    }
   };
 
   const clearTodoError = () => setTodoError('');
@@ -74,6 +95,7 @@ export const useTodos = (token) => {
     todoError,
     createTodo,
     toggleTodo,
+    editTodo,
     deleteTodo,
     clearCompleted,
     clearTodoError,

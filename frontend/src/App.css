@@ -131,7 +131,7 @@
 
 .todo-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -169,6 +169,24 @@
   font-size: 0.88rem;
   font-weight: 700;
   color: var(--ink);
+}
+
+.sort-box {
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.sort-box select,
+.todo-create-meta select,
+.todo-edit-meta select {
+  border: 1px solid rgba(16, 36, 52, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #ffffff;
 }
 
 .filter-group {
@@ -220,6 +238,37 @@
   margin-bottom: 16px;
 }
 
+.todo-create-main {
+  display: grid;
+  gap: 10px;
+}
+
+.todo-create-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.todo-create-meta label,
+.todo-edit-meta label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.todo-create-meta input,
+.todo-edit-meta input,
+.todo-edit-panel input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(16, 36, 52, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  background: #ffffff;
+}
+
 .todo-list {
   list-style: none;
   padding: 0;
@@ -242,6 +291,73 @@
 .todo-list label {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.todo-details {
+  display: grid;
+  gap: 6px;
+}
+
+.todo-meta-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.priority-chip,
+.due-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.priority-low {
+  background: #e3f7ed;
+  color: #14633f;
+}
+
+.priority-medium {
+  background: #fff3d8;
+  color: #8a4e08;
+}
+
+.priority-high {
+  background: #ffe2df;
+  color: #912f25;
+}
+
+.due-chip {
+  background: #e4f2ff;
+  color: #185084;
+}
+
+.due-chip.late {
+  background: #ffd8d3;
+  color: #8f2e21;
+}
+
+.todo-list li.overdue {
+  border-color: rgba(143, 46, 33, 0.35);
+}
+
+.todo-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.todo-edit-panel {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.todo-edit-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
@@ -273,7 +389,7 @@
 
 @media (max-width: 640px) {
   .todo-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .todo-top {
@@ -286,6 +402,11 @@
   }
 
   .todo-create {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-create-meta,
+  .todo-edit-meta {
     grid-template-columns: 1fr;
   }
 
