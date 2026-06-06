@@ -1,72 +1,91 @@
 # Full Stack Todo List (MERN)
 
-A complete Todo List project using:
+A production-style todo app with authentication, advanced task metadata, and two task views (List + Kanban).
+
+## Stack
+
 - React + Vite (frontend)
 - Node.js + Express (backend)
 - MongoDB + Mongoose
 - JWT + bcryptjs authentication
-- REST APIs
-- Jest + Supertest tests
+- Swagger UI (OpenAPI 3.0)
+- Jest + Supertest (backend tests)
 
 ## Project Structure
 
 - `frontend` - React client
 - `backend` - Express API server
 
-## Backend Setup
+## Quick Start
 
-1. Open `backend/.env.example` and create `.env` with your values.
-2. Install dependencies:
+1. Install root dependencies (for concurrent dev script):
 
 ```bash
-cd backend
 npm install
 ```
 
-3. Start backend server:
+2. Create env files:
+
+- `backend/.env` (copy from `.env.example`)
+- `frontend/.env` (copy from `.env.example` if needed)
+
+3. Start backend + frontend together:
 
 ```bash
 npm run dev
 ```
 
-Backend runs on `http://localhost:5000` by default.
+App URLs:
 
-## Frontend Setup
-
-1. Open `frontend/.env.example` and create `.env` with your values.
-2. Install dependencies:
-
-```bash
-cd frontend
-npm install
-```
-
-3. Start frontend app:
-
-```bash
-npm run dev
-```
-
-Frontend runs on `http://localhost:5173` by default.
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:5000`
+- Swagger UI: `http://localhost:5000/api-docs`
+- Swagger JSON: `http://localhost:5000/api-docs.json`
 
 ## API Endpoints
 
+### Health
+
+- `GET /api/health`
+
 ### Auth
+
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /api/auth/profile` (Bearer token required)
 
 ### Todos (Bearer token required)
+
 - `GET /api/todos`
 - `POST /api/todos`
 - `PUT /api/todos/:id`
 - `DELETE /api/todos/:id`
+- `DELETE /api/todos/completed`
 
-## Run Tests
+Todo payload supports:
+
+- `title`
+- `completed`
+- `status` (`todo`, `in_progress`, `done`)
+- `priority` (`low`, `medium`, `high`)
+- `tags` (string array)
+- `subtasks` (array of `{ title, completed }`)
+- `dueDate`
+- `reminderAt`
+
+## Useful Commands
 
 ```bash
-cd backend
-npm test
-```
+# Root
+npm run dev
+npm run build
 
-The tests run against an in-memory MongoDB instance.
+# Frontend only
+npm run dev --prefix frontend
+npm run lint --prefix frontend
+npm run build --prefix frontend
+
+# Backend only
+npm run dev --prefix backend
+npm test --prefix backend
+```

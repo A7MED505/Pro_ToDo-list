@@ -76,7 +76,7 @@ export default function AuthForm({ onLogin, onRegister, loading }) {
                 name="name"
                 value={authForm.name}
                 onChange={handleChange}
-                placeholder="Jane Doe"
+                placeholder="Your Full Name"
                 required
               />
             </label>

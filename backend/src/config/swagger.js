@@ -114,8 +114,26 @@ const swaggerSpec = {
           _id: { type: 'string', example: '6651f6f5f1b5cc39d95f16ab' },
           title: { type: 'string', example: 'Finish backend docs' },
           completed: { type: 'boolean', example: false },
+          status: { type: 'string', enum: ['todo', 'in_progress', 'done'], example: 'todo' },
           priority: { type: 'string', enum: ['low', 'medium', 'high'], example: 'medium' },
+          tags: {
+            type: 'array',
+            items: { type: 'string' },
+            example: ['work', 'urgent'],
+          },
+          subtasks: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                _id: { type: 'string', example: '6651f6f5f1b5cc39d95f16f0' },
+                title: { type: 'string', example: 'Draft swagger docs' },
+                completed: { type: 'boolean', example: false },
+              },
+            },
+          },
           dueDate: { type: 'string', format: 'date-time', nullable: true },
+          reminderAt: { type: 'string', format: 'date-time', nullable: true },
           user: { type: 'string', example: '6651f6f5f1b5cc39d95f16a0' },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' },
@@ -174,12 +192,35 @@ const swaggerSpec = {
         required: ['title'],
         properties: {
           title: { type: 'string', example: 'Prepare deployment notes' },
+          status: { type: 'string', enum: ['todo', 'in_progress', 'done'], example: 'todo' },
           priority: { type: 'string', enum: ['low', 'medium', 'high'], example: 'high' },
+          tags: {
+            type: 'array',
+            items: { type: 'string' },
+            example: ['frontend', 'important'],
+          },
+          subtasks: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['title'],
+              properties: {
+                title: { type: 'string', example: 'Create Kanban columns' },
+                completed: { type: 'boolean', example: false },
+              },
+            },
+          },
           dueDate: {
             type: 'string',
             format: 'date-time',
             nullable: true,
             example: '2026-06-10T00:00:00.000Z',
+          },
+          reminderAt: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+            example: '2026-06-09T09:30:00.000Z',
           },
         },
       },
@@ -188,12 +229,35 @@ const swaggerSpec = {
         properties: {
           title: { type: 'string', example: 'Prepare deployment notes (updated)' },
           completed: { type: 'boolean', example: true },
+          status: { type: 'string', enum: ['todo', 'in_progress', 'done'], example: 'in_progress' },
           priority: { type: 'string', enum: ['low', 'medium', 'high'], example: 'medium' },
+          tags: {
+            type: 'array',
+            items: { type: 'string' },
+            example: ['backend', 'review'],
+          },
+          subtasks: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['title'],
+              properties: {
+                title: { type: 'string', example: 'Finalize API response' },
+                completed: { type: 'boolean', example: true },
+              },
+            },
+          },
           dueDate: {
             type: 'string',
             format: 'date-time',
             nullable: true,
             example: '2026-06-11T00:00:00.000Z',
+          },
+          reminderAt: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+            example: '2026-06-10T08:00:00.000Z',
           },
         },
       },
@@ -237,9 +301,24 @@ const swaggerSpec = {
                   message: 'Priority must be low, medium, or high.',
                 },
               },
+              invalidStatus: {
+                value: {
+                  message: 'Status must be todo, in_progress, or done.',
+                },
+              },
+              invalidSubtasks: {
+                value: {
+                  message: 'Subtasks must be an array.',
+                },
+              },
               invalidDueDate: {
                 value: {
                   message: 'Due date is invalid.',
+                },
+              },
+              invalidReminderDate: {
+                value: {
+                  message: 'Reminder date is invalid.',
                 },
               },
             },
@@ -413,7 +492,7 @@ const swaggerSpec = {
             content: jsonContent({ $ref: '#/components/schemas/TodoResponse' }),
           },
           400: {
-            description: 'Missing title',
+            description: 'Invalid todo payload',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ApiError' },
@@ -421,6 +500,31 @@ const swaggerSpec = {
                   titleRequired: {
                     value: {
                       message: 'Title is required.',
+                    },
+                  },
+                  invalidPriority: {
+                    value: {
+                      message: 'Priority must be low, medium, or high.',
+                    },
+                  },
+                  invalidStatus: {
+                    value: {
+                      message: 'Status must be todo, in_progress, or done.',
+                    },
+                  },
+                  invalidSubtasks: {
+                    value: {
+                      message: 'Subtasks must be an array.',
+                    },
+                  },
+                  invalidDueDate: {
+                    value: {
+                      message: 'Due date is invalid.',
+                    },
+                  },
+                  invalidReminderDate: {
+                    value: {
+                      message: 'Reminder date is invalid.',
                     },
                   },
                 },
@@ -456,7 +560,8 @@ const swaggerSpec = {
         tags: ['Todos'],
         operationId: 'updateTodo',
         summary: 'Update todo',
-        description: 'Updates title and/or completion status for a specific todo.',
+        description:
+          'Updates one or more todo fields (title, completed, status, priority, tags, subtasks, dueDate, reminderAt).',
         security: [{ bearerAuth: [] }],
         parameters: [{ $ref: '#/components/parameters/TodoId' }],
         requestBody: {
