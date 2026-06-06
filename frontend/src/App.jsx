@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import AuthForm from './components/AuthForm';
 import TodoForm from './components/TodoForm';
@@ -42,6 +42,18 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem('todo-theme');
+    if (stored === 'dark' || stored === 'light') {
+      return stored;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('todo-theme', theme);
+  }, [theme]);
 
   const completedCount = useMemo(
     () => todos.filter((item) => item.completed).length,
@@ -104,6 +116,8 @@ function App() {
     }).length;
   }, [todos]);
 
+  const completionRate = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
+
   const error = authError || todoError;
 
   const handleLogin = async (payload) => {
@@ -152,11 +166,22 @@ function App() {
     ? 'No tasks match your current search or filter.'
     : 'No todos yet. Add your first task.';
 
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <h1>ToDo List</h1>
-        <p>Plan your day, protect your time, and finish what matters.</p>
+      <header className="app-hero card">
+        <div className="app-header-top hero-row">
+          <h1>ToDo List</h1>
+          <div className="hero-actions">
+            <button type="button" className="theme-toggle" onClick={handleToggleTheme}>
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
+          </div>
+        </div>
+        <p className="hero-subtitle">Plan your day, protect your time, and finish what matters.</p>
       </header>
 
       {error ? <p className="alert">{error}</p> : null}
@@ -164,90 +189,107 @@ function App() {
       {!user ? (
         <AuthForm onLogin={handleLogin} onRegister={handleRegister} loading={loading} />
       ) : (
-        <section className="card todo-card">
-          <TodoHeader
-            userName={user.name}
-            completedCount={completedCount}
-            totalCount={todos.length}
-            onLogout={handleLogout}
-          />
+        <section className="workspace-grid">
+          <aside className="workspace-sidebar card">
+            <TodoHeader
+              userName={user.name}
+              completedCount={completedCount}
+              totalCount={todos.length}
+              onLogout={handleLogout}
+            />
 
-          <div className="todo-stats" aria-label="Task summary">
-            <div className="stat-card">
-              <span>Open</span>
-              <strong>{activeCount}</strong>
-            </div>
-            <div className="stat-card">
-              <span>Done</span>
-              <strong>{completedCount}</strong>
-            </div>
-            <div className="stat-card">
-              <span>Total</span>
-              <strong>{todos.length}</strong>
-            </div>
-            <div className="stat-card">
-              <span>Overdue</span>
-              <strong>{overdueCount}</strong>
-            </div>
-          </div>
-
-          <div className="todo-toolbar">
-            <label className="search-box">
-              Search tasks
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Filter by title..."
-              />
-            </label>
-
-            <div className="filter-group" role="tablist" aria-label="Task filters">
-              {filterOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={filter === option.id ? 'filter-pill active' : 'filter-pill'}
-                  onClick={() => setFilter(option.id)}
-                >
-                  {option.label}
-                </button>
-              ))}
+            <div className="progress-panel" aria-label="Completion progress">
+              <div className="progress-title-row">
+                <span>Weekly progress</span>
+                <strong>{completionRate}%</strong>
+              </div>
+              <div className="progress-track">
+                <span className="progress-fill" style={{ width: `${completionRate}%` }} />
+              </div>
             </div>
 
-            <label className="sort-box">
-              Sort by
-              <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                {sortOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+            <div className="todo-stats" aria-label="Task summary">
+              <div className="stat-card">
+                <span>Open</span>
+                <strong>{activeCount}</strong>
+              </div>
+              <div className="stat-card">
+                <span>Done</span>
+                <strong>{completedCount}</strong>
+              </div>
+              <div className="stat-card">
+                <span>Total</span>
+                <strong>{todos.length}</strong>
+              </div>
+              <div className="stat-card">
+                <span>Overdue</span>
+                <strong>{overdueCount}</strong>
+              </div>
+            </div>
 
-          <TodoForm onCreate={handleCreateTodo} />
-
-          <div className="todo-actions">
-            <p className="todo-meta">Showing {visibleTodos.length} of {todos.length} tasks</p>
             {completedCount > 0 ? (
-              <button type="button" className="ghost secondary" onClick={handleClearCompleted}>
-                Clear completed
+              <button type="button" className="ghost secondary full-width" onClick={handleClearCompleted}>
+                Clear completed tasks
               </button>
             ) : null}
-          </div>
+          </aside>
 
-          {visibleTodos.length ? (
-            <TodoList
-              todos={visibleTodos}
-              onToggle={handleToggleTodo}
-              onDelete={handleDeleteTodo}
-              onEdit={handleEditTodo}
-            />
-          ) : (
-            <p className="empty">{emptyMessage}</p>
-          )}
+          <main className="workspace-main card">
+            <div className="todo-toolbar">
+              <div className="toolbar-row">
+                <label className="search-box">
+                  Search tasks
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Filter by title..."
+                  />
+                </label>
+
+                <label className="sort-box">
+                  Sort by
+                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                    {sortOptions.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="filter-group" role="tablist" aria-label="Task filters">
+                {filterOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={filter === option.id ? 'filter-pill active' : 'filter-pill'}
+                    onClick={() => setFilter(option.id)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <TodoForm onCreate={handleCreateTodo} />
+
+            <div className="todo-actions">
+              <p className="todo-meta">Showing {visibleTodos.length} of {todos.length} tasks</p>
+            </div>
+
+            {visibleTodos.length ? (
+              <TodoList
+                todos={visibleTodos}
+                onToggle={handleToggleTodo}
+                onDelete={handleDeleteTodo}
+                onEdit={handleEditTodo}
+              />
+            ) : (
+              <p className="empty">{emptyMessage}</p>
+            )}
+          </main>
         </section>
       )}
     </div>
