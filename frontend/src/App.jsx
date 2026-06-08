@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import AuthForm from './components/AuthForm';
-import TodoForm from './components/TodoForm';
-import TodoHeader from './components/TodoHeader';
-import TodoList from './components/TodoList';
-import KanbanBoard from './components/KanbanBoard';
+import AppFooter from './components/AppFooter';
+import KanbanView from './components/KanbanView';
+import ListView from './components/ListView';
 import { useAuth } from './hooks/useAuth';
 import { useTodos } from './hooks/useTodos';
 
@@ -202,260 +201,63 @@ function App() {
         <AuthForm onLogin={handleLogin} onRegister={handleRegister} loading={loading} />
       ) : (
         viewMode === 'kanban' ? (
-          <section className="kanban-page card">
-            <div className="kanban-page-top">
-              <TodoHeader
-                userName={user.name}
-                completedCount={completedCount}
-                totalCount={todos.length}
-                onLogout={handleLogout}
-              />
-
-              <div className="kanban-page-summary" aria-label="Task summary">
-                <div className="stat-card">
-                  <span>Open</span>
-                  <strong>{activeCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span>Done</span>
-                  <strong>{completedCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span>Overdue</span>
-                  <strong>{overdueCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label-compact">Reminder</span>
-                  <strong>{reminderCount}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="todo-toolbar">
-              <div className="toolbar-row">
-                <label className="search-box">
-                  Search tasks
-                  <input
-                    type="search"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="Filter by title..."
-                  />
-                </label>
-
-                <label className="sort-box">
-                  Sort by
-                  <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                    {sortOptions.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="filter-group" role="tablist" aria-label="Task filters">
-                {filterOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={filter === option.id ? 'filter-pill active' : 'filter-pill'}
-                    onClick={() => setFilter(option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="view-switch" role="tablist" aria-label="Task view mode">
-                <button
-                  type="button"
-                  className={viewMode === 'list' ? 'filter-pill active' : 'filter-pill'}
-                  onClick={() => setViewMode('list')}
-                >
-                  List
-                </button>
-                <button
-                  type="button"
-                  className={viewMode === 'kanban' ? 'filter-pill active' : 'filter-pill'}
-                  onClick={() => setViewMode('kanban')}
-                >
-                  Kanban
-                </button>
-              </div>
-            </div>
-
-            <div className="kanban-form-wrap">
-              <TodoForm onCreate={handleCreateTodo} />
-            </div>
-
-            <div className="todo-actions">
-              <p className="todo-meta">Showing {visibleTodos.length} of {todos.length} tasks</p>
-              {completedCount > 0 ? (
-                <button type="button" className="ghost secondary" onClick={handleClearCompleted}>
-                  Clear completed tasks
-                </button>
-              ) : null}
-            </div>
-
-            {visibleTodos.length ? (
-              <KanbanBoard
-                todos={visibleTodos}
-                onMove={(todoId, status) => handleEditTodo(todoId, { status })}
-                onDelete={handleDeleteTodo}
-              />
-            ) : (
-              <p className="empty">{emptyMessage}</p>
-            )}
-          </section>
+          <KanbanView
+            userName={user.name}
+            completedCount={completedCount}
+            totalCount={todos.length}
+            activeCount={activeCount}
+            overdueCount={overdueCount}
+            reminderCount={reminderCount}
+            onLogout={handleLogout}
+            onClearCompleted={handleClearCompleted}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            filter={filter}
+            onFilterChange={setFilter}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            filterOptions={filterOptions}
+            sortOptions={sortOptions}
+            onCreateTodo={handleCreateTodo}
+            visibleTodos={visibleTodos}
+            onMoveTodo={(todoId, status) => handleEditTodo(todoId, { status })}
+            onDeleteTodo={handleDeleteTodo}
+            emptyMessage={emptyMessage}
+          />
         ) : (
-          <section className="workspace-grid">
-            <aside className="workspace-sidebar card">
-              <TodoHeader
-                userName={user.name}
-                completedCount={completedCount}
-                totalCount={todos.length}
-                onLogout={handleLogout}
-              />
-
-              <div className="progress-panel" aria-label="Completion progress">
-                <div className="progress-title-row">
-                  <span>Weekly progress</span>
-                  <strong>{completionRate}%</strong>
-                </div>
-                <div className="progress-track">
-                  <span className="progress-fill" style={{ width: `${completionRate}%` }} />
-                </div>
-              </div>
-
-              <div className="todo-stats" aria-label="Task summary">
-                <div className="stat-card">
-                  <span>Open</span>
-                  <strong>{activeCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span>Done</span>
-                  <strong>{completedCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span>Total</span>
-                  <strong>{todos.length}</strong>
-                </div>
-                <div className="stat-card">
-                  <span>Overdue</span>
-                  <strong>{overdueCount}</strong>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label-compact">Reminder</span>
-                  <strong>{reminderCount}</strong>
-                </div>
-              </div>
-
-              {completedCount > 0 ? (
-                <button
-                  type="button"
-                  className="ghost secondary full-width"
-                  onClick={handleClearCompleted}
-                >
-                  Clear completed tasks
-                </button>
-              ) : null}
-            </aside>
-
-            <main className="workspace-main card">
-              <div className="todo-toolbar">
-                <div className="toolbar-row">
-                  <label className="search-box">
-                    Search tasks
-                    <input
-                      type="search"
-                      value={searchQuery}
-                      onChange={(event) => setSearchQuery(event.target.value)}
-                      placeholder="Filter by title..."
-                    />
-                  </label>
-
-                  <label className="sort-box">
-                    Sort by
-                    <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-                      {sortOptions.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-
-                <div className="filter-group" role="tablist" aria-label="Task filters">
-                  {filterOptions.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      className={filter === option.id ? 'filter-pill active' : 'filter-pill'}
-                      onClick={() => setFilter(option.id)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="view-switch" role="tablist" aria-label="Task view mode">
-                  <button
-                    type="button"
-                    className={viewMode === 'list' ? 'filter-pill active' : 'filter-pill'}
-                    onClick={() => setViewMode('list')}
-                  >
-                    List
-                  </button>
-                  <button
-                    type="button"
-                    className={viewMode === 'kanban' ? 'filter-pill active' : 'filter-pill'}
-                    onClick={() => setViewMode('kanban')}
-                  >
-                    Kanban
-                  </button>
-                </div>
-              </div>
-
-              <TodoForm onCreate={handleCreateTodo} />
-
-              <div className="todo-actions">
-                <p className="todo-meta">Showing {visibleTodos.length} of {todos.length} tasks</p>
-              </div>
-
-              {visibleTodos.length ? (
-                <TodoList
-                  todos={visibleTodos}
-                  onToggle={handleToggleTodo}
-                  onDelete={handleDeleteTodo}
-                  onEdit={handleEditTodo}
-                />
-              ) : (
-                <p className="empty">{emptyMessage}</p>
-              )}
-            </main>
-          </section>
+          <ListView
+            userName={user.name}
+            completedCount={completedCount}
+            totalCount={todos.length}
+            completionRate={completionRate}
+            activeCount={activeCount}
+            overdueCount={overdueCount}
+            reminderCount={reminderCount}
+            onLogout={handleLogout}
+            onClearCompleted={handleClearCompleted}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            filter={filter}
+            onFilterChange={setFilter}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            filterOptions={filterOptions}
+            sortOptions={sortOptions}
+            onCreateTodo={handleCreateTodo}
+            visibleTodos={visibleTodos}
+            onToggleTodo={handleToggleTodo}
+            onDeleteTodo={handleDeleteTodo}
+            onEditTodo={handleEditTodo}
+            emptyMessage={emptyMessage}
+          />
         )
       )}
 
-      <footer className="app-footer" aria-label="Application footer">
-        <div className="app-footer-inner">
-          <p className="app-footer-copy">© 2026 ToDo List, Inc.</p>
-          <nav className="app-footer-links" aria-label="Footer links">
-            <a href="#">Terms</a>
-            <a href="#">Privacy</a>
-            <a href="#">Security</a>
-            <a href="#">Status</a>
-            <a href="#">Community</a>
-            <a href="#">Docs</a>
-            <a href="#">Contact</a>
-            <a href="#">Manage cookies</a>
-            <a href="#">Do not share my personal information</a>
-          </nav>
-        </div>
-      </footer>
+      <AppFooter />
     </div>
   );
 }
